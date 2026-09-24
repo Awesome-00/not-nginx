@@ -66,8 +66,60 @@ int main()
         printf("path: %s\n", path);
         if (strcmp(path, "/") == 0)
         {
-            char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 12\r\n\r\n<h1>Hi</h1>\n";
-            write(newfd, response, strlen(response));
+            FILE *fp = fopen("index.html", "r");
+
+            if (fp == NULL)
+            {
+                perror("Error opening file");
+            }
+
+            fseek(fp, 0, SEEK_END);
+            long bytes = ftell(fp);
+            printf("file size: %ld\n", bytes);
+            fseek(fp, 0, SEEK_SET);
+
+            char *content = malloc(bytes + 1);
+
+            if (content == NULL)
+            {
+                perror("malloc");
+                fclose(fp);
+            }
+            int read_bytes = fread(content, 1, bytes, fp);
+            fclose(fp);
+            printf("%s\n", content);
+            char header[256];
+            snprintf(header, sizeof(header), "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %ld\r\n\r\n", bytes);
+            write(newfd, header, strlen(header));
+            write(newfd, content, bytes);
+            free(content);
+        }
+        else if (strcmp(path, "/about.html") == 0)
+        {
+            FILE *fp = fopen("about.html", "r");
+            if (fp == NULL)
+            {
+                perror("Error opening file");
+            }
+            fseek(fp, 0, SEEK_END);
+            long bytes = ftell(fp);
+            fseek(fp, 0, SEEK_SET);
+
+            char *content = malloc(bytes + 1);
+
+            if (content == NULL)
+            {
+                perror("malloc");
+                fclose(fp);
+            }
+            int read_bytes = fread(content, 1, bytes, fp);
+            fclose(fp);
+            printf("%s\n", content);
+            char header[256];
+            snprintf(header, sizeof(header), "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %ld\r\n\r\n", bytes);
+            write(newfd, header, strlen(header));
+            write(newfd, content, bytes);
+            free(content);
         }
         else
         {

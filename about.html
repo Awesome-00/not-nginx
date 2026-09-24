@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><title>About - not-nginx</title></head>
+<body>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/about.html">About</a> |
+        <a href="/nonexistent">Broken Link</a>
+    </nav>
+<h1>About this project</h1>
+<p>not-nginx is a minimal HTTP/1.1 server written in C, built directly on raw
+POSIX sockets — no libraries, no frameworks.</p>
+
+<p>It reads a raw HTTP request off the socket, parses the method and path,
+routes based on path, and serves real HTML files off disk with a correctly
+built response (status line, headers, <code>Content-Length</code>, body).
+Unknown paths get a proper 404.</p>
+
+<p>Built by following <a href="https://beej.us/guide/bgnet/">Beej's Guide to
+Network Programming</a> for the socket fundamentals, then working out the
+HTTP layer from the raw protocol format.</p>
+
+<h2>Code / commands used</h2>
+<ul>
+    <li><code>socket</code>, <code>bind</code>, <code>listen</code>,
+    <code>accept</code> — set up the TCP server</li>
+    <li><code>read</code> / <code>write</code> — receive requests, send
+    responses</li>
+    <li><code>strtok</code> — parse method and path from the request line</li>
+    <li><code>strcmp</code> — route requests by path</li>
+    <li><code>fopen</code> / <code>fread</code> / <code>fclose</code> — read
+    HTML files from disk</li>
+    <li><code>gcc httpserver.c -o httpserver</code> — build</li>
+    <li><code>./httpserver</code> — run, then visit
+    <code>localhost:8080</code></li>
+</ul>
+</body>
+</html>
