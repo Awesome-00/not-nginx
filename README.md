@@ -1,17 +1,22 @@
 # not-nginx
 
 A minimal HTTP/1.1 server written in C from raw sockets — no libraries, no frameworks.
-
+![not-nginx serving the homepage](screenshots/home_page.png)
+![not-nginx serving the about page](screenshots/about_page.png)
 ## What it does
 - Accepts TCP connections and reads raw HTTP requests
 - Parses the request line to extract method and path
-- Routes by path, returning a valid HTTP/1.1 response (status line, headers, body)
-- Returns 404 for unknown paths
+- Routes by path, serving real HTML files from disk with a correctly built
+  response (status line, headers, `Content-Length`, body)
+- Returns a proper 404 for unknown paths and for missing/unreadable files,
+  instead of crashing
+
+  ![reuqests](screenshots/requests.png)
 
 ## What it doesn't do (yet)
-- Serve real files from disk
 - Handle POST or other methods
 - Handle multiple simultaneous clients (no fork/threads/select yet)
+- Route dynamically — new pages currently need a hardcoded branch
 
 ## Build & run
 ```bash

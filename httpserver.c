@@ -73,7 +73,7 @@ int main()
             if (fp == NULL) // error check
             {
                 perror("Error opening file");
-                char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n<h1>Not Found</h1>";
+                char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 19\r\n\r\n<h1>Not Found</h1>";
                 write(newfd, response, strlen(response));
                 close(newfd);
                 continue;
@@ -106,7 +106,7 @@ int main()
             if (fp == NULL) // error check
             {
                 perror("Error opening file");
-                char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n<h1>Not Found</h1>";
+                char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 19\r\n\r\n<h1>Not Found</h1>";
                 write(newfd, response, strlen(response));
                 close(newfd);
                 continue;
@@ -132,10 +132,10 @@ int main()
             write(newfd, content, bytes);  
             free(content);
         }
-        
+
         else
         {
-            char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n<h1>Not Found</h1>";
+            char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 19\r\n\r\n<h1>Not Found</h1>";
             write(newfd, response, strlen(response));
         }
 
