@@ -18,13 +18,13 @@ int main()
 
     // Set up the address struct: any interface, port 8080
     struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(8080);
+    memset(&addr, 0, sizeof(addr)); // Sets memory to 0, clearing out old bits
+    addr.sin_family = AF_INET; // Tells OS that this is an IPV4 address
+    addr.sin_addr.s_addr = INADDR_ANY; // Accept connections from any nerwork interface
+    addr.sin_port = htons(8080); // Listen on port 8080; arranges bytes into n/w byte order
 
     // Bind the socket to that address/port
-    int result = bind(sockfd, (struct sockaddr *)&addr, sizeof(addr));
+    int result = bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)); // bind() expects a generic sockaddr*; Tyecastcasted to sockaddr to fit any family 
     if (result == -1)
     {
         perror("bind");
@@ -52,46 +52,45 @@ int main()
 
         // Read whatever the client sent
         char buffer[1024];
-        memset(buffer, 0, sizeof(buffer));
-        int bytes = read(newfd, buffer, sizeof(buffer) - 1);
+        memset(buffer, 0, sizeof(buffer)); // Sets memory to 0, clearing out old bits
+        int bytes = read(newfd, buffer, sizeof(buffer) - 1); // sizeof(buffer) - 1 allows to read at most 1023 bytes; leaving space for /0
         if (bytes == -1)
         {
             perror("read");
             exit(1);
         }
         printf("Received: %s\n", buffer);
-        char *method = strtok(buffer, " ");
-        char *path = strtok(NULL, " ");
+        char *method = strtok(buffer, " "); // Gets first token, up to first space (the HTTP method)
+        char *path = strtok(NULL, " "); // Continues from last token, gets the path
         printf("method: %s\n", method);
         printf("path: %s\n", path);
         if (strcmp(path, "/") == 0)
         {
-            FILE *fp = fopen("index.html", "r");
+            FILE *fp = fopen("index.html", "r"); // Opens file in read mode
 
-            if (fp == NULL)
+            if (fp == NULL) // error check
             {
                 perror("Error opening file");
             }
 
-            fseek(fp, 0, SEEK_END);
-            long bytes = ftell(fp);
-            printf("file size: %ld\n", bytes);
-            fseek(fp, 0, SEEK_SET);
+            fseek(fp, 0, SEEK_END); // Heads to the end of file
+            long bytes = ftell(fp); // calculates number of bytes upto eof
+            fseek(fp, 0, SEEK_SET); // Heads back to beginning of file
 
-            char *content = malloc(bytes + 1);
+            char *content = malloc(bytes + 1); // includes one extra byte for /0
 
-            if (content == NULL)
+            if (content == NULL) // error check
             {
                 perror("malloc");
                 fclose(fp);
             }
-            int read_bytes = fread(content, 1, bytes, fp);
+            int read_bytes = fread(content, 1, bytes, fp); //Reads 'bytes' number of 1-byte chunks from fp into content
             fclose(fp);
-            printf("%s\n", content);
             char header[256];
-            snprintf(header, sizeof(header), "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %ld\r\n\r\n", bytes);
-            write(newfd, header, strlen(header));
-            write(newfd, content, bytes);
+            snprintf(header, sizeof(header), "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %ld\r\n\r\n", bytes); // Allows for variable size in read file
+            write(newfd, header, strlen(header)); // send status line + headers (safe as a real string)
+            write(newfd, content, bytes); // send raw file bytes by exact count, not by strlen — avoids
+                                          // breaking early if the file contains a 0 byte somewhere
             free(content);
         }
         else if (strcmp(path, "/about.html") == 0)
@@ -116,9 +115,9 @@ int main()
             fclose(fp);
             printf("%s\n", content);
             char header[256];
-            snprintf(header, sizeof(header), "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %ld\r\n\r\n", bytes);
-            write(newfd, header, strlen(header));
-            write(newfd, content, bytes);
+            snprintf(header, sizeof(header), "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %ld\r\n\r\n", bytes); 
+            write(newfd, header, strlen(header)); 
+            write(newfd, content, bytes);  
             free(content);
         }
         else
