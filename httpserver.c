@@ -62,8 +62,10 @@ int main()
         printf("Received: %s\n", buffer);
         char *method = strtok(buffer, " "); // Gets first token, up to first space (the HTTP method)
         char *path = strtok(NULL, " "); // Continues from last token, gets the path
+
         printf("method: %s\n", method);
         printf("path: %s\n", path);
+
         if (strcmp(path, "/") == 0)
         {
             FILE *fp = fopen("index.html", "r"); // Opens file in read mode
@@ -71,6 +73,10 @@ int main()
             if (fp == NULL) // error check
             {
                 perror("Error opening file");
+                char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n<h1>Not Found</h1>";
+                write(newfd, response, strlen(response));
+                close(newfd);
+                continue;
             }
 
             fseek(fp, 0, SEEK_END); // Heads to the end of file
@@ -93,12 +99,17 @@ int main()
                                           // breaking early if the file contains a 0 byte somewhere
             free(content);
         }
+
         else if (strcmp(path, "/about.html") == 0)
         {
             FILE *fp = fopen("about.html", "r");
-            if (fp == NULL)
+            if (fp == NULL) // error check
             {
                 perror("Error opening file");
+                char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n<h1>Not Found</h1>";
+                write(newfd, response, strlen(response));
+                close(newfd);
+                continue;
             }
             fseek(fp, 0, SEEK_END);
             long bytes = ftell(fp);
@@ -111,6 +122,7 @@ int main()
                 perror("malloc");
                 fclose(fp);
             }
+
             int read_bytes = fread(content, 1, bytes, fp);
             fclose(fp);
             printf("%s\n", content);
@@ -120,6 +132,7 @@ int main()
             write(newfd, content, bytes);  
             free(content);
         }
+        
         else
         {
             char *response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n<h1>Not Found</h1>";
